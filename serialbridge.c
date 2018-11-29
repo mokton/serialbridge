@@ -51,19 +51,19 @@ static int serialsetup(const char *name, int speed) {
   return fd;
 }
 
-// static int socketsetup(int port) {
-//   int listening = socket(AF_INET6, SOCK_STREAM, 0);
-//   check(listening < 0, "socket");
-//   struct sockaddr_in6 addr;
-//   memset(&addr, 0, sizeof addr);
-//   addr.sin6_family = AF_INET6;
-//   addr.sin6_port = htons(port);
-//   int one = 1;
-//   check(setsockopt(listening, SOL_SOCKET, SO_REUSEADDR, &one, sizeof one), "SO_REUSEADDR");
-//   check(bind(listening, (const struct sockaddr *)&addr, sizeof addr), "bind");
-//   check(listen(listening, 5), "listen");
-//   return listening;
-// }
+static int socketsetup(int port) {
+  int listening = socket(AF_INET6, SOCK_STREAM, 0);
+  check(listening < 0, "socket");
+  struct sockaddr_in6 addr;
+  memset(&addr, 0, sizeof addr);
+  addr.sin6_family = AF_INET6;
+  addr.sin6_port = htons(port);
+  int one = 1;
+  check(setsockopt(listening, SOL_SOCKET, SO_REUSEADDR, &one, sizeof one), "SO_REUSEADDR");
+  check(bind(listening, (const struct sockaddr *)&addr, sizeof addr), "bind");
+  check(listen(listening, 5), "listen");
+  return listening;
+}
 
 static void dump16(char prefix, const char *buffer, int length) {
   putchar(prefix);
@@ -120,49 +120,35 @@ static void usage(int error, const char *progname) {
 }
 
 int main(int argc, char * const argv[]) {
-    int opt;
-    while ((opt = getopt(argc, argv, "hv")) != -1)
-        switch(opt) {
-        case 'v':
-            verbose = 1;
-            break;
-        case 'h':
-            usage(0, argv[0]);
-        default:
-            usage(1, argv[0]);
-        }
-    if (argc - optind != 4)
-        usage(1, argv[0]);
-    int speed = atoi(argv[optind + 1]);
-    char *addr = argv[optind + 2];
-    int port = atoi(argv[optind + 3]);
-    if (speed == 0 || port == 0 || ipverify(addr) == 0)
-        usage(1, argv[0]);
-    int serial = serialsetup(argv[optind], speed);
-    struct sockaddr_in serv;
-    int sfd, ct;
-    for (;;) {
-        if (verbose)
-            printf("Connecting to Server port.\n");
-        sfd = socket(AF_INET,SOCK_STREAM, 0);
-        if(sfd>=0){
-            serv.sin_family=AF_INET;
-            serv.sin_port=htons(port);
-            inet_pton(AF_INET, addr, &serv.sin_addr);
-            ct = connect(sfd, (struct sockaddr *)&serv, sizeof(serv));
-            if(ct>=0){
-                if (verbose)
-                    printf("Connection accepted\n");
-                bridge(sfd, serial);
-                close(sfd);
-                if (verbose)
-                    printf("Connection closed\n");
-            }
-            else
-                perror("Socket connect error");
-        }
-        else
-            perror("Open socket error");
+  int opt;
+  while ((opt = getopt(argc, argv, "hv")) != -1)
+    switch(opt) {
+    case 'v':
+      verbose = 1;
+      break;
+    case 'h':
+      usage(0, argv[0]);
+    default:
+      usage(1, argv[0]);
     }
-    exit(0);
+  if (argc - optind != 3)
+    usage(1, argv[0]);
+  int speed = atoi(argv[optind + 1]);
+  int port = atoi(argv[optind + 2]);
+  if (speed == 0 || port == 0)
+    usage(1, argv[0]);
+  int serial = serialsetup(argv[optind], speed);
+  int listening = socketsetup(port);
+  for (;;) {
+    if (verbose)
+      printf("Waiting for incoming connection\n");
+    int accepted = accept(listening, NULL, NULL);
+    if (verbose)
+      printf("Connection accepted\n");
+    bridge(accepted, serial);
+    close(accepted);
+    if (verbose)
+      printf("Connection closed\n");
+  }
+  exit(0);
 }
