@@ -73,9 +73,9 @@ setspeed device speed
 For example, the command
 
 ```bash
-% setspeed /dev/ttyACM0 111111
+% setspeed /dev/ttyACM0 115200
 ```
 
-will configure the `/dev/ttyACM0` serial port with a 111,111 bps
+will configure the `/dev/ttyACM0` serial port with a 115,200 bps
 speed. You can then read from and write to this device from the shell
 or any program.
