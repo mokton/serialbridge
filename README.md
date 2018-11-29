@@ -45,18 +45,18 @@ Programs composing this package
 `serialbridge` allows you to build a bridge between a serial port and an incoming TCP socket:
 
 ```bash
-serialbridge [-v] device speed port
+serialbridge [-v] device speed ipAddress port
 ```
 
 For example, the command
 
 ```bash
-% serialbridge /dev/ttyACM0 111111 4161
+% serialbridge /dev/ttyACM0 115200 192.168.1.100 502
 ```
 
-will open a TCP socket listening on local port 4161 which will be a bridge to `/dev/ttyACM0` at a
-111,111 bps speed. You can add `-v` if you want to dump all the information going through the
-serial port, for debugging or reverse engineering purpose.
+will open a TCP socket client connects to remote ip address 192.168.1.100 on port 502 which will 
+be a bridge to `/dev/ttyACM0` at a 115,200 bps speed. You can add `-v` if you want to dump all 
+the information going through the serial port, for debugging or reverse engineering purpose.
 
 `serialbridge` configures the serial port in raw mode. The bridge is totally transparent.
 
