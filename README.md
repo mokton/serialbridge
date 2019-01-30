@@ -18,11 +18,11 @@ However, those do not let you configure an arbitrary baud rate that works
 with every kind of serial port. Configuring an arbitrary baud rate may be
 needed when dealing with some devices, such as an [XBee module](http://www.digi.com/xbee/),
 whose clock divisor only allows for speeds such as the non-standard
-111,111 bps.
+115,200 bps.
 
 `serialbridge` and `setspeed` take advantage of `ioctl` calls introduced
 in 2009 in the Linux kernel named `TCGETS2` and `TCSETS2`. Those allow
-to set a serial port at an arbitrary speed, such as 111,111 bps.
+to set a serial port at an arbitrary speed, such as 115,200 bps.
 
 Before the introduction of those new `ioctl` calls, it was possible to use
 an arbitrary speed by setting the port to 38400 bps and configuring a custom
