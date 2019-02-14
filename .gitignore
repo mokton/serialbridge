@@ -1,4 +1,8 @@
+.gitignore
+.travis.yml
+Makefile.am
 Makefile.in
+README.md
 aclocal.m4
 autom4te.cache
 compile
@@ -13,3 +17,11 @@ config.status
 serialbridge
 setspeed
 *.o
+*.7z
+*.png
+settings.json
+check.h
+configure.ac
+serialbridge.c
+setspeed.c
+speed.*
