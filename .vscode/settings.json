@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "mbcrc.h": "c",
+        "serialconfig.h": "c"
+    }
+}
