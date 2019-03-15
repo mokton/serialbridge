@@ -130,7 +130,10 @@ static int relay(int from, int to, char prefix) {
                 write(to, tmpbuf, pdu_len + 6);
                 //dump('*', tmpbuf, pdu_len + 6);
             }else
+            {
                 perror("Wrong crc code");
+                printf("[Err] Buffer CRC: %x%x, Check CRC: %x%x\n", buffer[n-2], buffer[n-1], crc % 256, crc >> 8);
+            }
         }else
         if(prefix == '>' && n >= 10) // from socket
         {
