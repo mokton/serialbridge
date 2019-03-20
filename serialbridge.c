@@ -30,6 +30,7 @@
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <arpa/inet.h>
+#include <errno.h>
 
 #include "check.h"
 #include "speed.h"
@@ -131,8 +132,10 @@ static int relay(int from, int to, char prefix) {
                 //dump('*', tmpbuf, pdu_len + 6);
             }else
             {
-                perror("Wrong crc code");
-                printf("[Err] Buffer CRC: %x%x, Check CRC: %x%x\n", buffer[n-2], buffer[n-1], crc % 256, crc >> 8);
+                printf("Wrong crc code");
+                printf("[Err] Buffer CRC: %x %x, Check CRC: %x %x\n", buffer[n-2], buffer[n-1], crc % 256, crc >> 8);
+                if(errno > 0)
+                    return 0;
             }
         }else
         if(prefix == '>' && n >= 10) // from socket
@@ -159,8 +162,10 @@ static void bridge(int sockfd, int serfd) {
     poll(fds, 2, -1);
     if (fds[0].revents & POLLIN)
       if (relay(serfd, sockfd, '<') <= 0) {
-        fprintf(stderr, "Serial port closed\n");
-        exit(0);
+        // fprintf(stderr, "Serial port closed\n");
+        // exit(0);
+        printf("Error: %s\n", strerror(errno));
+        return;
       }
     if (fds[1].revents & POLLIN)
       if (relay(sockfd, serfd, '>') <= 0)
