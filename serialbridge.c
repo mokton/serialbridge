@@ -88,7 +88,7 @@ static int serialsetup(const char *name, int speed, char *cflag) {
 static void dump16(char prefix, const char *buffer, int length) {
   putchar(prefix);
   for (int i = 0; i < length; i++)
-    printf(" %02x", (uint8_t) buffer[i]);
+    printf(" %02X", (uint8_t) buffer[i]);
   for (int i = length; i < 16; i++)
     printf("   ");
   printf(" %c ", prefix);
@@ -112,6 +112,7 @@ static int relay(int from, int to, char prefix) {
     static char tpl[6]; //TID 2bytes, PID 2bytes, LENGTH 2bytes
     static char tmpbuf[1024];
     int n = read(from, buffer, sizeof buffer);
+    int i = 0;
     // printf("Received: %d bytes.\n", n);
     // dump('<', buffer, n);
     if (n > 0) {
@@ -132,10 +133,14 @@ static int relay(int from, int to, char prefix) {
                 //dump('*', tmpbuf, pdu_len + 6);
             }else
             {
-                printf("Wrong crc code");
-                printf("[Err] Buffer CRC: %x %x, Check CRC: %x %x\n", buffer[n-2], buffer[n-1], crc % 256, crc >> 8);
-                if(errno > 0)
-                    return 0;
+                printf("Serial Data: ");
+                for(i=0; i<n; i++)
+                    printf("%02X ", buffer[i]);
+                    printf("\n");
+                printf("[Err]Buffer CRC: %02X %02X, Check CRC: %02X %02X\n", buffer[n-2], buffer[n-1], crc % 256, crc >> 8);
+                // if(errno > 0)
+                tcflush(from, TCIOFLUSH);
+                return 0;
             }
         }else
         if(prefix == '>' && n >= 10) // from socket
@@ -164,7 +169,8 @@ static void bridge(int sockfd, int serfd) {
       if (relay(serfd, sockfd, '<') <= 0) {
         // fprintf(stderr, "Serial port closed\n");
         // exit(0);
-        printf("Error: %s\n", strerror(errno));
+        if(errno > 0)
+            printf("Error: %s\n", strerror(errno));
         return;
       }
     if (fds[1].revents & POLLIN)

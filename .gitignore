@@ -17,4 +17,7 @@ setspeed
 *.o
 *.7z
 *.png
+*.bin
+*.ipch
+*.Po
 settings.json
