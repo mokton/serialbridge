@@ -20,4 +20,8 @@ setspeed
 *.bin
 *.ipch
 *.Po
+*.sh
+shtool
+mmap_address.bin
+serialbridge.ipch
 settings.json
